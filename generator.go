@@ -91,6 +91,7 @@ func WithObfuscation(ob Obfuscator) Option {
 // - epoch: 2025-01-01T00:00:00Z
 // - pace: 1ms
 // - width: 8 (implies bits≈41)
+// - bits: derived from width if zero, ensuring 36^width ≥ 2^bits
 // - obfuscation: Feistel(bits, 4)
 func New(opts ...Option) (*Generator, error) {
 	g := &Generator{

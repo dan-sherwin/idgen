@@ -36,4 +36,9 @@
 // With width=8 the domain fits ~41 bits, which at 1ms pace comfortably covers
 // decades (until ~2094 relative to the default epoch). Increase width or reduce
 // pace for longer horizons.
+//
+// Guarantees & limits
+//   - Single-process monotonicity: a minimum pace (default 1ms) ensures IDs do not regress in time within one process.
+//   - No cross-process coordination: for global uniqueness, use UUID/ULID or add a node ID scheme outside this package.
+//   - Obfuscation is not encryption: Feistel permutation removes visual sequential patterns but is not a security boundary.
 package idgen

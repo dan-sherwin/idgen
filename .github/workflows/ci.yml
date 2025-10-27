@@ -2,18 +2,11 @@ name: CI
 
 on:
   push:
-    paths:
-      - 'idgen/**'
   pull_request:
-    paths:
-      - 'idgen/**'
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: idgen
     strategy:
       matrix:
         go-version: ['1.25.x']
@@ -30,6 +23,7 @@ jobs:
         run: go env
 
       - name: Cache go build
+        if: hashFiles('**/go.sum') != ''
         uses: actions/cache@v4
         with:
           path: |
@@ -42,7 +36,11 @@ jobs:
       - name: Tidy (check)
         run: |
           go mod tidy
-          git diff --exit-code -- go.mod go.sum
+          if [ -f go.sum ]; then
+            git diff --exit-code -- go.mod go.sum
+          else
+            git diff --exit-code -- go.mod
+          fi
 
       - name: Build
         run: go build ./...
@@ -57,9 +55,6 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
-          working-directory: idgen
 
       - name: Govulncheck
         uses: golang/govulncheck-action@v1
-        with:
-          work-dir: idgen

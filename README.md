@@ -1,10 +1,14 @@
 # idgen — compact, reversible, human-friendly IDs for Go
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/dan-sherwin/idgen.svg)](https://pkg.go.dev/github.com/dan-sherwin/idgen)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dan-sherwin/idgen)](https://goreportcard.com/report/github.com/dan-sherwin/idgen)
+[![CI](https://github.com/dan-sherwin/idgen/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dan-sherwin/idgen/actions/workflows/ci.yml)
+
 `idgen` produces short, fixed-width base36 identifiers that:
-- Are reversible back to a timestamp (for ops/debugging)
-- Don’t look visually sequential (bounded-domain Feistel obfuscation)
-- Enforce a minimum time spacing per process (e.g., 1ms) for monotonicity and gentle throttling
-- Are easy to configure: epoch, pace, width/bits, obfuscator
+- Reversible back to a timestamp (handy for ops/debugging)
+- Hide visual sequential patterns (bounded-domain Feistel obfuscation)
+- Enforce a minimum spacing per process (e.g., 1ms) for monotonicity and gentle throttling
+- Easy to configure: epoch, pace, width/bits, obfuscator
 
 This package is instance-based and thread-safe. It uses no global state.
 
@@ -21,7 +25,7 @@ import (
 )
 
 func main() {
-	g, _ := idgen.New() // defaults: epoch=2025-01-01 UTC, pace=1ms, width=8, Feistel obfuscation
+	g, _ := idgen.New() // defaults: epoch=2025-01-01 UTC, pace=1ms (calls may briefly wait), width=8, Feistel obfuscation
 	raw := g.Generate()        // paced, monotonic raw tick (since epoch, in pace units)
 	id := g.Format(raw)        // fixed 8-char base36 string
 	back, _ := g.Parse(id)     // == raw
@@ -59,13 +63,15 @@ Typical default (good for decades at 1ms pace): width=8 ⇒ ≈41 bits domain �
 - `TimestampFromRaw(raw) time.Time`: UTC timestamp for a raw tick
 - `TimestampFromID(id) (time.Time, error)`: parse and convert to UTC time
 
+### Supported Go versions
+Tested with Go 1.25+. The module’s `go` directive is `1.25.1`.
+
 ## Manual exploration test
 A manual-only test lets you experiment without affecting CI.
 
-Examples:
+Examples (from repo root):
 
 ```bash
-cd idgen
 # defaults
 go test -tags=manual -run TestManualOptions -v -- -n=10
 # change pace and rounds
