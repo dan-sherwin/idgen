@@ -28,8 +28,6 @@ type Generator struct {
 	// internal state
 	mu       sync.Mutex
 	lastTick int64
-	seqBits  uint // reserved for future, currently 0
-	seq      uint64
 }
 
 // Option configures a Generator.
@@ -99,7 +97,6 @@ func New(opts ...Option) (*Generator, error) {
 		pace:    time.Millisecond,
 		bits:    0, // derive from width if 0
 		width:   8, // default width
-		seqBits: 0, // default no sequence
 	}
 	for _, opt := range opts {
 		if err := opt(g); err != nil {
