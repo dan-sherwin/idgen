@@ -33,4 +33,4 @@ issues:
 
 output:
   formats:
-    - format: colored-line
+    - format: colored-line-number
