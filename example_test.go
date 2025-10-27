@@ -2,6 +2,7 @@ package idgen_test
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/dan-sherwin/idgen"
@@ -12,8 +13,9 @@ func ExampleGenerator_Generate() {
 	g, _ := idgen.New()
 	raw := g.Generate()
 	id := g.Format(raw)
-	_ = id                    // use in logs/UI
-	fmt.Println(len(id) == 8) // fixed width
+	_ = id // use in logs/UI
+	plain := strings.ReplaceAll(id, "-", "")
+	fmt.Println(len(plain) == 8) // fixed width (ignoring dashes)
 	// (No Output block to avoid flakiness; this example is for documentation rendering.)
 }
 

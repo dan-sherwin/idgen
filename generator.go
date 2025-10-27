@@ -161,6 +161,7 @@ func (g *Generator) Generate() int64 {
 }
 
 // Format converts a raw tick into a fixed-width lowercase base36 string using the obfuscator.
+// The returned human-readable string is grouped into chunks of 4 characters separated by '-'.
 func (g *Generator) Format(raw int64) string {
 	mask := uint64((uint64(1) << g.bits) - 1)
 	v := uint64(raw) & mask
@@ -174,6 +175,18 @@ func (g *Generator) Format(raw int64) string {
 		b.WriteString(s)
 		s = b.String()
 	}
+	// Insert dashes every 4 characters for readability
+	if len(s) > 4 {
+		var b strings.Builder
+		b.Grow(len(s) + len(s)/4) // rough estimate
+		for i := 0; i < len(s); i++ {
+			if i > 0 && i%4 == 0 {
+				b.WriteByte('-')
+			}
+			b.WriteByte(s[i])
+		}
+		s = b.String()
+	}
 	return s
 }
 
@@ -183,6 +196,8 @@ func (g *Generator) Parse(s string) (int64, error) {
 	if s == "" {
 		return 0, errors.New("empty id")
 	}
+	// Remove optional dash separators used in human-readable format
+	s = strings.ReplaceAll(s, "-", "")
 	v, err := strconv.ParseUint(s, 36, 64)
 	if err != nil {
 		return 0, err

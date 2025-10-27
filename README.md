@@ -25,12 +25,12 @@ import (
 )
 
 func main() {
-	g, _ := idgen.New() // defaults: epoch=2025-01-01 UTC, pace=1ms (calls may briefly wait), width=8, Feistel obfuscation
-	raw := g.Generate()        // paced, monotonic raw tick (since epoch, in pace units)
-	id := g.Format(raw)        // fixed 8-char base36 string
-	back, _ := g.Parse(id)     // == raw
-	when := g.TimestampFromRaw(back)
-	fmt.Println(id, when.UTC().Format(time.RFC3339Nano))
+ g, _ := idgen.New() // defaults: epoch=2025-01-01 UTC, pace=1ms (calls may briefly wait), width=8, Feistel obfuscation
+ raw := g.Generate()        // paced, monotonic raw tick (since epoch, in pace units)
+ id := g.Format(raw)        // fixed 8-char base36 string (displayed grouped as xxxx-xxxx)
+ back, _ := g.Parse(id)     // == raw
+ when := g.TimestampFromRaw(back)
+ fmt.Println(id, when.UTC().Format(time.RFC3339Nano))
 }
 ```
 
@@ -58,8 +58,8 @@ Typical default (good for decades at 1ms pace): width=8 ⇒ ≈41 bits domain �
 
 ### Common helpers
 - `Generate() int64`: returns raw tick since epoch (units of pace)
-- `Format(raw) string`: base36, fixed width, obfuscated
-- `Parse(id) (int64, error)`: reverse of `Format`
+- `Format(raw) string`: base36, fixed width, obfuscated; displayed grouped in chunks of 4 with dashes (e.g., `xxxx-xxxx`)
+- `Parse(id) (int64, error)`: reverse of `Format`; accepts dashed or undashed strings
 - `TimestampFromRaw(raw) time.Time`: UTC timestamp for a raw tick
 - `TimestampFromID(id) (time.Time, error)`: parse and convert to UTC time
 

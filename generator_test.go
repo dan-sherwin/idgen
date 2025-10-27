@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"runtime"
 	"sort"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -21,11 +22,18 @@ func TestNewDefaultsAndFormatWidth(t *testing.T) {
 		t.Fatalf("obfuscator bits %d != generator bits %d", g.ob.DomainBits(), g.bits)
 	}
 
-	// Generate one and ensure formatted width is fixed
+	// Generate one and ensure formatted width is fixed when removing dashes
 	raw := g.Generate()
 	id := g.Format(raw)
-	if len(id) != 8 {
-		t.Fatalf("formatted id length = %d, want 8, id=%q", len(id), id)
+	plain := strings.ReplaceAll(id, "-", "")
+	if len(plain) != 8 {
+		t.Fatalf("formatted id plain length = %d, want 8, id=%q", len(plain), id)
+	}
+	// Check dash grouping roughly matches groups of 4 (dashes at every 4 chars)
+	dashes := strings.Count(id, "-")
+	expectedDashes := (g.width - 1) / 4
+	if dashes != expectedDashes {
+		t.Fatalf("dash count = %d, want %d, id=%q", dashes, expectedDashes, id)
 	}
 
 	// Round-trip Format -> Parse
@@ -49,8 +57,9 @@ func TestFormatParsePropertyRandom(t *testing.T) {
 	for i := 0; i < 2000; i++ {
 		v := rng.Uint64() & mask
 		id := g.Format(int64(v))
-		if len(id) != 8 {
-			t.Fatalf("iter %d: len(id)=%d want 8", i, len(id))
+		plain := strings.ReplaceAll(id, "-", "")
+		if len(plain) != 8 {
+			t.Fatalf("iter %d: len(plain)=%d want 8 (id=%q)", i, len(plain), id)
 		}
 		back, err := g.Parse(id)
 		if err != nil {
